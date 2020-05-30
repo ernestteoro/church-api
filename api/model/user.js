@@ -24,13 +24,16 @@ const userSchema = mongoose.Schema({
         type:String,
         require:true
     },
+    isLogin:{
+        type:Boolean,
+    },
     quartier:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'quartier',
         require:true
     },
     telephone:{
-        type:Number,
+        type:String,
         require:true,
         match:/^\d{9}$/
     },

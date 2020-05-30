@@ -16,11 +16,11 @@ const egliseSchema = mongoose.Schema({
         require:true
     },
     logitude:{
-        type:Number,
+        type:String,
         require:false
     },
     latitude:{
-        type:Number,
+        type:String,
         require:false
     },
     quartier:{

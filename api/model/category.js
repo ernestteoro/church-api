@@ -15,6 +15,9 @@ const categorySchema = mongoose.Schema({
         require:true,
         default:Date.now()
     },
+    image:{
+        type:String
+    },
     updated:{
         type:Date,
         require:true,

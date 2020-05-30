@@ -5,7 +5,7 @@ exports.get_eglise=(req, res, next) =>{
     const idEglise = req.params._id;
     if(idEglise){
         EgliseModel.findById(idEglise).
-        select('nom description category logitude latitude created')
+        select('_id nom description category logitude latitude created')
         .populate("quartier","nom description created")
         .populate("category","title description created")
         .exec(function(error, eglise){
@@ -17,9 +17,9 @@ exports.get_eglise=(req, res, next) =>{
             return res.status(200).json(eglise)
         })
     }else{
-        EgliseModel.find().select('nom description category logitude latitude created')
-        .populate("quartier","nom description created")
-        .populate("category","title description created")
+        EgliseModel.find().select('_id nom description category logitude latitude created')
+        .populate("quartier","_id nom description created")
+        .populate("category","_id title description created")
         .exec(function(error,eglises){
             if(error){
                 return res.status(error.status).json({
@@ -31,6 +31,32 @@ exports.get_eglise=(req, res, next) =>{
         })
     }
 }
+
+
+// List of churches using cate Id
+exports.get_eglise_by_category=(req, res, next) =>{
+    const catId = req.params._id;
+    if(catId){
+        EgliseModel.find({category:catId}).
+        select('_id nom description category logitude latitude created')
+        .populate("quartier","_id nom description created")
+        .populate("category","_id title description created")
+        .exec(function(error, eglise){
+            if(error){
+                return res.status(error.status).json({
+                    message:error.message
+                })
+            }
+            return res.status(200).json(eglise)
+        })
+    }else{
+        return res.status(200).json({
+            message:"Pas de données disponible"
+        })
+    }
+}
+
+
 exports.add_eglise= (req, res, next) =>{
     const eglise = new EgliseModel({
         _id:new mongoose.Types.ObjectId(),

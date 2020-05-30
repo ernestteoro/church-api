@@ -7,7 +7,7 @@ exports.get_program = (req, res, next) => {
     if (programId) {
         ProgramModel.findById({programId}).
         select('_id titre dateDebut jour heure duree description')
-        .populate("eglise","nom description category logitude latitude quartier")
+        .populate("eglise","nom description logitude latitude")
         .exec(function(err,program){
             if(err){
                 return res.status(404).json({
@@ -17,10 +17,9 @@ exports.get_program = (req, res, next) => {
             return res.status(200).json(program);
         });
     } else {
-
         ProgramModel.find()
         .select('_id titre dateDebut jour heure duree description')
-        .populate("eglise","nom description category logitude latitude quartier")
+        .populate("eglise","nom description logitude latitude")
         .exec(function(err,programs){
             if(err){
                 return res.status(404).json({
@@ -40,7 +39,7 @@ exports.get_programs_of_eglise = (req, res, next) => {
     if (egliseId) {
         ProgramModel.find({eglise:egliseId})
         .select('_id titre dateDebut jour heure duree description')
-        .populate("eglise","nom description category logitude latitude quartier")
+        .populate("eglise","nom description logitude latitude")
         .exec()
         .then(programs=>{
             if(programs){
@@ -57,7 +56,7 @@ exports.get_programs_of_eglise = (req, res, next) => {
     } else {
         ProgramModel.find().
         select('_id titre dateDebut jour heure duree description')
-        populate("eglise","nom description category logitude latitude quartier").
+        populate("eglise","nom description logitude latitude").
         exec(function(err,programs){
             if(err){
                 return res.status(404).json({
@@ -76,7 +75,7 @@ exports.get_programs_of_event = (req, res, next) => {
     if (eventId) {
         ProgramModel.find({event:eventId})
         .select('_id titre dateDebut jour heure duree description')
-        .populate("eglise","nom description category logitude latitude quartier")
+        .populate("eglise","nom description logitude latitude")
         .exec()
         .then(programs=>{
             if(programs){
@@ -93,7 +92,7 @@ exports.get_programs_of_event = (req, res, next) => {
     } else {
         ProgramModel.find().
         select('_id titre dateDebut jour heure duree description')
-        populate("eglise","nom description category logitude latitude quartier").
+        populate("eglise","nom description logitude latitude").
         exec(function(err,programs){
             if(err){
                 return res.status(404).json({

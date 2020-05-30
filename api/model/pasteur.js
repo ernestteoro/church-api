@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 
 const pasteurSchema = mongoose.Schema({
     _id:mongoose.Schema.Types.ObjectId,
+    title:{
+        type: String,
+        require:true
+    },
     lastName:{
         type:String,
         require:true,

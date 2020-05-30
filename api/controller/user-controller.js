@@ -11,7 +11,7 @@ exports.get_user = (req, res, next) => {
             UserModel.findById(userId)
             .select('_id firstName lastName login email address telephone gender role')
             .populate("quartier","_id nom description created")
-            .populate("eglise","_id nom description category logitude latitude created ")
+            .populate("eglise","_id nom description logitude latitude created ")
             .exec(function(err,user){
                 if(err){
                     return res.status(404).json({
@@ -22,9 +22,9 @@ exports.get_user = (req, res, next) => {
             });
         } else {
             UserModel.find()
-            .select('_id firstName lastName login email address telephone gender role')
+            .select('_id firstName lastName login email telephone gender role')
             .populate("quartier","_id nom description created")
-            .populate("eglise","_id nom description category logitude latitude created")
+            .populate("eglise","_id nom description logitude latitude created")
             .exec(function(err,users){
                 if(err){
                     return res.status(404).json({
@@ -42,9 +42,9 @@ exports.get_users_of_eglise = (req, res, next) => {
     const _egliseId = req.params._id;
         if (_egliseId) {
             UserModel.find({eglise:_egliseId})
-            .select('_id firstName lastName login email address telephone gender role')
+            .select('_id firstName lastName login email telephone gender role')
             .populate("quartier","_id nom description created")
-            .populate("eglise","_id nom description category logitude latitude created ")
+            .populate("eglise","_id nom description logitude latitude created ")
             .exec(function(err,user){
                 if(err){
                     return res.status(404).json({
@@ -89,7 +89,6 @@ exports.create_user = (userData) => {
                                 login:req.body.login,
                                 firstName:req.body.firstName,
                                 lastName:req.body.lastName,
-                                address:req.body.address,
                                 gender:req.body.gender,
                                 telephone:req.body.telephone,
                                 password:result,
@@ -148,7 +147,6 @@ exports.add_user = (req, res, next) => {
                                 login:req.body.login,
                                 firstName:req.body.firstName,
                                 lastName:req.body.lastName,
-                                address:req.body.address,
                                 gender:req.body.gender,
                                 telephone:req.body.telephone,
                                 password:result,
@@ -163,7 +161,7 @@ exports.add_user = (req, res, next) => {
                                 UserModel.findById(savedUser._id)
                                 .select('_id firstName lastName login email address telephone gender role')
                                 .populate("quartier","_id nom description created")
-                                .populate("eglise","_id nom description category logitude latitude created ")
+                                .populate("eglise","_id nom description logitude latitude created ")
                                 .exec(function(err,user){
                                     if(err){
                                         return res.status(404).json({
@@ -174,6 +172,7 @@ exports.add_user = (req, res, next) => {
                                 });
                                 //return res.status(200).json();
                             }).catch((err) => {
+                                console.log(err.message);
                                 return res.status(500).json({
                                     message:err.message
                                 });
@@ -182,13 +181,13 @@ exports.add_user = (req, res, next) => {
                     });
                 }else {
                     return res.status(500).json({
-                        message:"The user already exists"
+                        message:"The user already exists avec ce nom d'utilisateur"
                     });
                 }
             });
         } else {
             return res.status(500).json({
-                message:"The user already exists"
+                message:"The user already exists avec cette address mail"
             });
         }
     });
@@ -202,16 +201,16 @@ exports.delete_user = (req, res, next) => {
 
 // User login
 exports.login = (req, res, next) => {
+    const userNotFound={ 
+    }
+
     UserModel.findOne({
         email: req.body.email
     }).then(usr => {
         if (usr) {
             bcrypt.compare(req.body.password, usr.password, (err, result) => {
                 if (err) {
-                    console.log(err)
-                    return res.status(401).json({
-                        message: 'Not authorized'
-                    });
+                    return res.status(201).json(userNotFound);
                 }
                 if (result) {
                     console.log("User after hashing passwor")
@@ -228,47 +227,43 @@ exports.login = (req, res, next) => {
                     }
                     return res.status(200).json(user);
                 }
-
-                return res.status(401).json({
-                    message: 'Not authorized'
-                }); 
+                return res.status(201).json(userNotFound);
             });
         }else{
             UserModel.findOne({
-                login: req.body.login
+                login: req.body.email
             }).exec().then(userLogin=>{
-                bcrypt.compare(req.body.password, userLogin.password, (err, result) => {
-                    if (err) {
-                        console.log(err)
-                        return res.status(401).json({
-                            message: 'Not authorized'
-                        });
-                    }
-                    if (result) {
-                        token = jwt.sign({
-                            username: userLogin.login,
-                            userId: userLogin._id
-                        }, 'secret');
-    
-                        const userInfos={
-                            email:userLogin.email,
-                            role:userLogin.role,
-                            token: token
+                if(userLogin){
+                    bcrypt.compare(req.body.password, userLogin.password, (err, result) => {
+                        if (err) {
+                            return res.status(201).json(userNotFound);
                         }
-                        return res.status(200).json(userInfos);
-                    }
-
-                    return res.status(401).json({
-                        message: 'Not authorized'
-                    }); 
-                });
-            })
+                        if (result) {
+                            token = jwt.sign({
+                                username: userLogin.login,
+                                userId: userLogin._id
+                            }, 'secret');
+        
+                            const userInfos={
+                                email:userLogin.email,
+                                role:userLogin.role,
+                                token: token
+                            }
+                            return res.status(200).json(userInfos);
+                        }
+                        return res.status(201).json(userNotFound);
+                    });
+                }else{
+                    return res.status(201).json(userNotFound);
+                }
+                
+            }).catch(err=>{
+                return res.status(201).json(userNotFound);
+            });
         }
+
     }).catch(err => {
-        console.log(err)
-        return res.status(404).json({
-            message: "Not authorized"
-        });
-    })
+        return res.status(201).json(userNotFound);
+    });
     
 }
