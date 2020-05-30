@@ -15,21 +15,23 @@ const egliseRoute = require('./api/route/eglise-route');
 
 const app = express();
 
-
+// Locale database
+/*
 mongoose.connect('mongodb://localhost/church',{
     useNewUrlParser:true,
     useUnifiedTopology:true,
     useCreateIndex:true
 });
 
-/*
-mongo.connect('mongodb+srv://eservice:admin@cluster0-jotbb.mongodb.net/eservice?retryWrites=true&w=majority',{
+*/
+
+// Atlas database
+mongoose.connect('mongodb+srv://eservice:admin@cluster0-jotbb.mongodb.net/church?retryWrites=true&w=majority',{
     useNewUrlParser:true,
     useUnifiedTopology: true,
     useFindAndModify: false,
     useCreateIndex: true
 });
-*/
 
 app.disable('etag');
 app.use(morgan('dev'));
