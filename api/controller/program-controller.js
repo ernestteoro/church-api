@@ -8,11 +8,10 @@ exports.get_program = (req, res, next) => {
         ProgramModel.findById({programId}).
         select('_id titre dateDebut jour heure duree description')
         .populate("eglise","nom description logitude latitude")
+        .populate("lieu"," nom description")
         .exec(function(err,program){
             if(err){
-                return res.status(404).json({
-                    message:err.message
-                });
+                return res.status(404).json(err.message);
             }
             return res.status(200).json(program);
         });
@@ -20,6 +19,7 @@ exports.get_program = (req, res, next) => {
         ProgramModel.find()
         .select('_id titre dateDebut jour heure duree description')
         .populate("eglise","nom description logitude latitude")
+        .populate("lieu"," nom description")
         .exec(function(err,programs){
             if(err){
                 return res.status(404).json({
@@ -40,6 +40,7 @@ exports.get_programs_of_eglise = (req, res, next) => {
         ProgramModel.find({eglise:egliseId})
         .select('_id titre dateDebut jour heure duree description')
         .populate("eglise","nom description logitude latitude")
+        .populate("lieu"," nom description")
         .exec()
         .then(programs=>{
             if(programs){
@@ -54,10 +55,11 @@ exports.get_programs_of_eglise = (req, res, next) => {
             });
         });
     } else {
-        ProgramModel.find().
-        select('_id titre dateDebut jour heure duree description')
-        populate("eglise","nom description logitude latitude").
-        exec(function(err,programs){
+        ProgramModel.find()
+        .select('_id titre dateDebut jour heure duree description')
+        .populate("eglise","nom description logitude latitude")
+        .populate("lieu"," nom description")
+        .exec(function(err,programs){
             if(err){
                 return res.status(404).json({
                     message:err.message
@@ -76,6 +78,7 @@ exports.get_programs_of_event = (req, res, next) => {
         ProgramModel.find({event:eventId})
         .select('_id titre dateDebut jour heure duree description')
         .populate("eglise","nom description logitude latitude")
+        .populate("lieu"," nom description")
         .exec()
         .then(programs=>{
             if(programs){
@@ -92,8 +95,9 @@ exports.get_programs_of_event = (req, res, next) => {
     } else {
         ProgramModel.find().
         select('_id titre dateDebut jour heure duree description')
-        populate("eglise","nom description logitude latitude").
-        exec(function(err,programs){
+        .populate("eglise","nom description logitude latitude")
+        .populate("lieu"," nom description")
+        .exec(function(err,programs){
             if(err){
                 return res.status(404).json({
                     message:err.message
@@ -112,11 +116,13 @@ exports.add_program=(req, res, next)=>{
         _id:new mongoose.Types.ObjectId(),
         titre:req.body.titre,
         dateDebut:req.body.dateDebut,
+        dateFin: req.body.dateFin,
         jour:req.body.jour,
         heure:req.body.heure,
         duree:req.body.duree,
         eglise:req.body.eglise,
         event:req.body.event,
+        lieu:req.body.lieu,
         created:Date.now(),
         updated: Date.now(),
         description:req.body.description
@@ -124,11 +130,22 @@ exports.add_program=(req, res, next)=>{
 
     //Saving program
     program.save().then(savedprogram=>{
-        res.status(200).json(savedprogram)
-    }).catch(err=>{
-        res.status(500).json({
-            message:err.message
+        ProgramModel.find({_id:savedprogram._id}).
+        select('_id titre dateDebut jour heure duree description')
+        .populate("eglise","nom description logitude latitude")
+        .populate("lieu"," nom description")
+        .exec(function(err,programs){
+
+            console.log(programs);
+
+            if(err){
+                return res.status(404).json(err.message);
+            }
+            return res.status(200).json(programs[0]);
         });
+        //return res.status(200).json(savedprogram)
+    }).catch(err=>{
+        return res.status(500).json(err.message);
     });
 
 }
@@ -148,11 +165,19 @@ exports.update_program=(req, res, next)=>{
         description:req.body.description
     };
     ProgramModel.update({_id:_id},program).then(updatedprogram=>{
-        res.status(200).json(updatedprogram)
-    }).catch(err=>{
-        res.status(500).json({
-            message:err.message
+        ProgramModel.find({_id:updatedprogram._id}).
+        select('_id titre dateDebut jour heure duree description')
+        .populate("eglise","nom description logitude latitude")
+        .populate("lieu"," nom description")
+        .exec(function(err,programs){
+            if(err){
+                return res.status(404).json(err.message);
+            }
+            return res.status(200).json(programs);
         });
+        //res.status(200).json(updatedprogram)
+    }).catch(err=>{
+        return res.status(500).json(err.message);
     });
 }
 
@@ -160,11 +185,18 @@ exports.update_program=(req, res, next)=>{
 exports.delete_program=(req, res, next)=>{
     const _id = req.params._id;
     ProgramModel.deleteOne({_id:_id}).then(deletedprogram=>{
-        res.status(200).json(deletedprogram)
-    }).catch(err=>{
-        res.status(500).json({
-            message:err.message
+        ProgramModel.find({_id:deletedprogram._id}).
+        select('_id titre dateDebut jour heure duree description')
+        .populate("eglise","nom description logitude latitude")
+        .populate("lieu"," nom description")
+        .exec(function(err,programs){
+            if(err){
+                return res.status(404).json(err.message);
+            }
+            return res.status(200).json(programs);
         });
+    }).catch(err=>{
+        return res.status(500).json(err.message);
     });
 
 }

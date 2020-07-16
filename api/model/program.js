@@ -11,6 +11,10 @@ const programSchema = mongoose.Schema({
         type:Date,
         require:false
     },
+    dateFin:{
+        type:Date,
+        require:false
+    },
     jour:{
         type:String,
         require:false
@@ -30,6 +34,11 @@ const programSchema = mongoose.Schema({
     eglise:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'eglise',
+        require:false
+    },
+    lieu:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'quartier',
         require:false
     },
     event:{
