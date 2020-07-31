@@ -2,7 +2,7 @@
   "name": "church-api",
   "version": "1.0.0",
   "description": "api for church program management",
-  "main": "server.js",
+  "main": "church-server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
